@@ -16,7 +16,12 @@ export default function RootLayout({
       <body>
         <header>
           <nav>
-            <div className="logo">Logo</div>
+            <div className="logo">
+              <img
+                src="/assets/legaliter-logo.jpg"
+                alt="Logo Tu Firma Legal"
+              />
+            </div>
             <ul className="nav-menu">
               <li>Sección</li>
               <li>Sección</li>
