@@ -13,6 +13,29 @@ export default function Home() {
           <button className="hero-button">Ver más</button>
         </div>
       </section>
+      <section className="about-section">
+        <div className="about-content">
+          <h2>Sobre mí</h2>
+          <p>
+            Soy abogada con más de 10 años de experiencia en derecho civil y
+            comercial. Mi enfoque es brindar un servicio legal de alta calidad,
+            basado en la confianza y el compromiso con mis clientes.
+          </p>
+        </div>
+        <img
+          src="/assets/about.jpg"
+          alt="Sobre mí"
+          className="about-img"
+        />
+      </section>
+      
+      <section className="servicios-section">
+        <img
+          src="/assets/servicios.jpg"
+          alt="Nuestros servicios"
+          className="servicios-img"
+        />
+      </section>
 
       <section className="example-cases">
         <div className="example-box">
