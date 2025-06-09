@@ -23,15 +23,15 @@ export default function Home() {
           </p>
         </div>
         <img
-          src="/assets/about.jpg"
+          src="/assets/legaliter-logo.jpg"
           alt="Sobre mí"
           className="about-img"
         />
       </section>
-      
+
       <section className="servicios-section">
         <img
-          src="/assets/servicios.jpg"
+          src="/assets/servicios.png"
           alt="Nuestros servicios"
           className="servicios-img"
         />
