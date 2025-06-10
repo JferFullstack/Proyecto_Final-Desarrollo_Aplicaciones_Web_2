@@ -54,6 +54,34 @@ export default function Home() {
       </div>
       </section>
 
+      <section className="trusted-message">
+        <div className="trusted-content">
+          <p>
+              “Mi compromiso es brindarte la tranquilidad de saber que estás siendo representado con honestidad, respeto y profesionalismo.”
+          </p>
+        </div>
+      </section>
+
+      <section className="services-section">
+        <div className="services-grid">
+          <div className="service-box">
+            <div className="icon">⚖️</div>
+            <h3>Derecho Civil</h3>
+            <p>Resolución de conflictos familiares, herencias, contratos, etc.</p>
+          </div>
+          <div className="service-box">
+            <div className="icon">📄</div>
+            <h3>Asesoramiento Legal</h3>
+            <p>Análisis, redacción y revisión de documentos legales.</p>
+          </div>
+          <div className="service-box">
+            <div className="icon">🛡️</div>
+            <h3>Defensa Legal</h3>
+            <p>Representación jurídica en procesos judiciales y administrativos.</p>
+          </div>
+        </div>
+      </section>
+
     </>
   );
 }
