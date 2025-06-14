@@ -1,3 +1,6 @@
+import React from 'react';
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <>
@@ -44,20 +47,20 @@ export default function Home() {
       </section>
 
       <section className="form-section">
-      <div className="form-grid">
-        <div className="form-box">F1</div>
-        <div className="form-box">F2</div>
-        <div className="form-box">F3</div>
-        <div className="form-box">F4</div>
-        <div className="form-box">F5</div>
-        <div className="form-box">F6</div>
-      </div>
+        <div className="form-grid">
+          <div className="form-box">F1</div>
+          <div className="form-box">F2</div>
+          <div className="form-box">F3</div>
+          <div className="form-box">F4</div>
+          <div className="form-box">F5</div>
+          <div className="form-box">F6</div>
+        </div>
       </section>
 
       <section className="trusted-message">
         <div className="trusted-content">
           <p>
-              “Mi compromiso es brindarte la tranquilidad de saber que estás siendo representado con honestidad, respeto y profesionalismo.”
+            “Mi compromiso es brindarte la tranquilidad de saber que estás siendo representado con honestidad, respeto y profesionalismo.”
           </p>
         </div>
       </section>
@@ -81,7 +84,18 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </>
+  );
+}
+
+export function DashboardPage() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
+      <h1 className="text-4xl font-bold mb-4">¡Bienvenido al Dashboard!</h1>
+      <p className="text-lg mb-8">Has iniciado sesión o te has registrado exitosamente.</p>
+      <Link href="/" className="text-blue-500 hover:underline">
+        Volver a Inicio
+      </Link>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
-// src/app/(auth)/signup/page.tsx
 import React from 'react';
 import Link from 'next/link';
-import SignUpForm from '../../../auth/SignUpForm';
+
+import SignUpForm from './SignUpForm';
 
 export default function SignUpPage() {
   return (
