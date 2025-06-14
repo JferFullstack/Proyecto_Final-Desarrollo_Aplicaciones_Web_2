@@ -1,8 +1,10 @@
 // src/components/layout/Footer.tsx
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white p-4 text-center mt-auto"> {/* mt-auto para empujar al fondo */}
-      <p>© 2025 Tu Firma Legal. Todos los derechos reservados.</p>
+    <footer className="bg-gray-900 text-white py-8 mt-12">
+      <div className="container mx-auto text-center">
+        <p>© 2025 Tu Firma Legal. Todos los derechos reservados.</p>
+      </div>
     </footer>
   );
 }
