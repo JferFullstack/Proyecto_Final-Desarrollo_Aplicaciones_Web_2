@@ -1,7 +1,9 @@
 // src/app/(auth)/login/page.tsx
 import React from 'react';
 import Link from 'next/link';
-import SignInForm from '../../../auth/SignInForm';
+
+import SignInForm from './SignInForm';
+
 
 export default function LoginPage() {
   return (
