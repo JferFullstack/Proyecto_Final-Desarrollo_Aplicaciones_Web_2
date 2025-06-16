@@ -1,5 +1,14 @@
 // backend/src/app.ts
 // Añadir un log de inicio muy temprano
+import 'dotenv/config'; 
+import express from 'express';
+import cors from 'cors';
+import sequelize from './config/database'; 
+import authRoutes from './routes/authRoutes';
+const app = express();
+const PORT = process.env.PORT || 4000;
+
+/*
 console.log('1. Backend: Iniciando app.ts...');
 
 import 'dotenv/config'; // Importa dotenv/config para cargar variables de entorno
@@ -12,7 +21,7 @@ console.log('3. Backend: Express y CORS importados.');
 import sequelize from './config/database'; // Importa la instancia de Sequelize
 console.log('4. Backend: Sequelize importado.');
 
-import authRoutes from './routes/auth';// Importa las rutas de autenticación
+import authRoutes from './routes/authRoutes';// Importa las rutas de autenticación
 console.log('5. Backend: authRoutes importado.');
 
 import { User } from './models/User'; // Importa tu modelo de usuario aquí
@@ -51,6 +60,7 @@ sequelize.authenticate()
     // Asegurarse de que el error se imprima antes de salir
     process.exit(1); // Sale de la aplicación si no se puede conectar a la DB
   });
+  */
 
 // Rutas
 app.use('/api/auth', authRoutes); // Prefijo para todas las rutas de autenticación
