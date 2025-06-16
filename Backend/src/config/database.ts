@@ -1,23 +1,16 @@
 // backend/src/config/database.ts
-import { Sequelize } from 'sequelize';
-import * as path from 'path'; 
+import { Sequelize } from 'sequelize-typescript';
+import dotenv from 'dotenv';
+dotenv.config(); // Asegúrate de que las variables de entorno se carguen aquí también
 
-
-const configPath = path.resolve(__dirname, '../../config/config.json');
-const config = require(configPath); 
-const env = process.env.NODE_ENV || 'development';
-const dbConfig = config[env];
-
-const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
-  host: dbConfig.host,
-  dialect: dbConfig.dialect,
-  logging: dbConfig.logging,
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  }
+const sequelize = new Sequelize({
+  dialect: 'mysql',
+  host: process.env.DB_HOST,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  models: [__dirname + '/../models'], // Ruta a tus modelos
+  logging: false, // Puedes poner true para ver los logs de SQL en la consola
 });
 
 export default sequelize;

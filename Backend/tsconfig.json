@@ -1,0 +1,23 @@
+// backend/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es2018",               // Versión de ECMAScript para el código JS de salida
+    "module": "commonjs",             // Sistema de módulos a usar (Node.js usa CommonJS)
+    "lib": ["es2018", "dom"],         // Librerías de tipos disponibles (es2018 para Node.js, dom si es necesario para alguna lib)
+    "outDir": "./dist",               // Directorio donde se guardará el JS compilado
+    "rootDir": "./src",               // Directorio donde está tu código fuente TypeScript
+    "strict": true,                   // Habilita todas las opciones de verificación de tipos estrictas (recomendado)
+    "esModuleInterop": true,          // **¡CRÍTICO!** Permite importar módulos CommonJS (como Express y CORS) usando import default sintaxis (import express from 'express';)
+    "skipLibCheck": true,             // Omite la verificación de tipos de los archivos .d.ts de la librería (puede acelerar la compilación)
+    "forceConsistentCasingInFileNames": true, // Fuerza la consistencia en el uso de mayúsculas/minúsculas en los nombres de archivo
+    "resolveJsonModule": true,        // Permite importar archivos .json
+    "emitDecoratorMetadata": true,    // **¡CRÍTICO!** Emite metadatos de diseño para los decoradores (necesario para Sequelize-TypeScript)
+    "experimentalDecorators": true    // **¡CRÍTICO!** Habilita el soporte para decoradores (necesario para Sequelize-TypeScript)
+  },
+  "include": [
+    "src/**/*.ts" // Incluye todos los archivos .ts dentro de la carpeta src
+  ],
+  "exclude": [
+    "node_modules" // Excluye la carpeta node_modules de la compilación
+  ]
+}
