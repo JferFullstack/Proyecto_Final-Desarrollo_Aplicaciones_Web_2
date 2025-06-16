@@ -1,47 +1,45 @@
 // backend/src/models/User.ts
-import { Table, Column, Model, DataType, Unique } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, Unique, Default, AllowNull } from 'sequelize-typescript';
+import { Optional } from 'sequelize';
+
+// Define los atributos que son opcionales al crear una nueva instancia (porque la DB los genera, como 'id')
+interface UserAttributes {
+  id: number;
+  username: string;
+  email: string;
+  password: string; // La contraseña ya hashada
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Define los atributos que son opcionales al crear una instancia de User
+// Por ejemplo, 'id', 'createdAt', 'updatedAt' son generados por la base de datos.
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
 @Table({
-  tableName: 'users', // Asegúrate que coincida con el nombre de tu tabla en MySQL
-  timestamps: true, // Esto creará automáticamente createdAt y updatedAt
+  timestamps: true, // Esto añade automáticamente los campos `createdAt` y `updatedAt`
+  tableName: 'users', // Nombre de la tabla en la base de datos
+  modelName: 'User', // Nombre del modelo
 })
-export class User extends Model {
-  @Column({
-    type: DataType.INTEGER.UNSIGNED, // Usamos UNSIGNED como en tu SQL
-    primaryKey: true,
-    autoIncrement: true,
-    field: 'id',
-  })
-  id!: number;
+export class User extends Model<UserAttributes, UserCreationAttributes> {
 
-  @Unique
-  @Column({
-    type: DataType.STRING(255),
-    allowNull: false,
-    field: 'username',
-  })
-  username!: string;
+  @AllowNull(false)
+  @Column(DataType.STRING) // Define el tipo de dato como STRING (VARCHAR en MySQL)
+  username!: string; // El '!' indica que esta propiedad será inicializada por Sequelize
 
-  @Unique
-  @Column({
-    type: DataType.STRING(255),
-    allowNull: false,
-    field: 'email',
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   email!: string;
 
-  @Column({
-    type: DataType.STRING(255), // Aquí se guardará la contraseña hasheada
-    allowNull: false,
-    field: 'password',
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING) // Almacenará la contraseña hashada
   password!: string;
 
-  // createdAt y updatedAt son manejados automáticamente por timestamps: true
-  // Si los quieres explícitos para tipos, puedes agregarlos así:
-  @Column(DataType.DATE)
-  createdAt!: Date;
+  // `createdAt` y `updatedAt` son añadidos automáticamente por `timestamps: true`
+  // Pero puedes definirlos explícitamente si quieres más control o tipado.
+  // @Column(DataType.DATE)
+  // createdAt!: Date;
 
-  @Column(DataType.DATE)
-  updatedAt!: Date;
+  // @Column(DataType.DATE)
+  // updatedAt!: Date;
 }
