@@ -20,7 +20,8 @@ export default function SignInForm() {
     setLoading(true);
 
     try {
-      const response = await fetch('/login', { // ENVÍA AL BACKEND /login
+      // ¡¡CORRECCIÓN AQUÍ!! Apuntando directamente al endpoint de login del backend
+      const response = await fetch('http://localhost:4000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -28,11 +29,11 @@ export default function SignInForm() {
 
       const data = await response.json(); // Recibe la respuesta del backend
 
-      if (response.ok) { // Si el backend responde con un 2xx
+      if (response.ok) { // Si el backend responde con un 2xx (ej. 200 OK)
         setMessage(data.message || 'Inicio de sesión exitoso!');
         setIsSuccess(true);
         // Redirige al usuario después de un inicio de sesión exitoso
-        router.push('/');
+        router.push('/'); // Redirige a la página principal o dashboard
       } else { // Si el backend responde con un error (ej. 400, 401, 500)
         setMessage(data.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
         setIsSuccess(false);
