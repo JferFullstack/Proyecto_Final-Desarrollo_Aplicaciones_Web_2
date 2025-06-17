@@ -1,5 +1,5 @@
 // app/(auth)/signup/SignUpForm.tsx
-'use client'; // ¡CRÍTICO!
+'use client'; 
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -35,16 +35,15 @@ export default function SignUpForm() {
         body: JSON.stringify({ username, email, password }),
       });
 
-      const data = await response.json(); // Recibe la respuesta del backend
+      const data = await response.json(); 
 
-      if (response.ok) { // Si el backend responde con un 2xx
+      if (response.ok) { 
         setMessage(data.message || '¡Registro exitoso!');
         setIsSuccess(true);
-        // Redirige al usuario después de un registro exitoso
         setTimeout(() => {
           router.push('/login');
-        }, 2000); // Dar un tiempo para que el usuario vea el mensaje de éxito
-      } else { // Si el backend responde con un error
+        }, 2000); 
+      } else { 
         setMessage(data.message || 'Error al registrar. Inténtalo de nuevo.');
         setIsSuccess(false);
       }
