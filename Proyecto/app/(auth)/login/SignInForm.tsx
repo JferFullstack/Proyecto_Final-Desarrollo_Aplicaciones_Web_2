@@ -1,5 +1,5 @@
 // app/(auth)/login/SignInForm.tsx
-'use client'; // ¡CRÍTICO!
+'use client'; 
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState(''); // Para mostrar mensajes de éxito/error al usuario
+  const [message, setMessage] = useState(''); 
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState<boolean | null>(null);
 
@@ -15,25 +15,24 @@ export default function SignInForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setMessage(''); // Limpiar mensajes anteriores
+    setMessage(''); 
     setIsSuccess(null);
     setLoading(true);
 
     try {
-      const response = await fetch('/login', { // ENVÍA AL BACKEND /login
+      const response = await fetch('http://localhost:4000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json(); // Recibe la respuesta del backend
+      const data = await response.json(); 
 
-      if (response.ok) { // Si el backend responde con un 2xx
+      if (response.ok) { 
         setMessage(data.message || 'Inicio de sesión exitoso!');
         setIsSuccess(true);
-        // Redirige al usuario después de un inicio de sesión exitoso
-        router.push('/');
-      } else { // Si el backend responde con un error (ej. 400, 401, 500)
+        router.push('/'); 
+      } else { 
         setMessage(data.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
         setIsSuccess(false);
       }
