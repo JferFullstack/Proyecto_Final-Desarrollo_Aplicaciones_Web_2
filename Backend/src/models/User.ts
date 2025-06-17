@@ -24,10 +24,12 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'create
 export class User extends Model<UserAttributes, UserCreationAttributes> {
 
   @AllowNull(false)
+  @Unique // Asegura que el nombre de usuario sea único
   @Column(DataType.STRING) // Define el tipo de dato como STRING (VARCHAR en MySQL)
   username!: string; // El '!' indica que esta propiedad será inicializada por Sequelize
 
   @AllowNull(false)
+  @Unique // Asegura que el correo electrónico sea único
   @Column(DataType.STRING)
   email!: string;
 

@@ -29,7 +29,7 @@ export default function SignUpForm() {
     }
 
     try {
-      const response = await fetch('/signup', { 
+      const response = await fetch('http://localhost:4000/api/auth/register', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
