@@ -1,38 +1,85 @@
 // backend/src/controllers/authController.ts
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { User } from '../models/User';
+import jwt from 'jsonwebtoken';
+import { User, UserRole } from '../models/User';
+import { Op } from 'sequelize';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_para_desarrollo';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
 export const register = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
 
-  if (!username || !email || !password || password.length < 6) {
-    return res.status(400).json({ message: 'Datos inválidos. Asegúrate de que todos los campos estén llenos y la contraseña tenga al menos 6 caracteres.' });
+  // Validación mejorada
+  if (!username || !email || !password) {
+    return res.status(400).json({ 
+      message: 'Todos los campos son requeridos: usuario, email y contraseña' 
+    });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ 
+      message: 'La contraseña debe tener al menos 8 caracteres' 
+    });
   }
 
   try {
-    const existingUser = await User.findOne({
+    // Verificar si el usuario ya existe
+    const usuarioExistente = await User.findOne({
       where: {
-        email: email,
-      },
+        [Op.or]: [{ email }, { username }]
+      }
     });
 
-    if (existingUser) {
-      return res.status(409).json({ message: 'El correo electrónico ya está registrado.' });
+    if (usuarioExistente) {
+      const campoConflictivo = usuarioExistente.email === email ? 'email' : 'usuario';
+      return res.status(409).json({ 
+        message: `El ${campoConflictivo} ya está registrado` 
+      });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await User.create({
+    // Crear usuario con contraseña hasheada
+    const nuevoUsuario = await User.create({
       username,
       email,
-      password: hashedPassword,
+      password: await bcrypt.hash(password, 12), // Hash más seguro
+      role: UserRole.USER // Rol por defecto
     });
 
-    res.status(201).json({ message: 'Usuario registrado exitosamente', user: { id: newUser.id, username: newUser.username, email: newUser.email } });
+    // Generar token JWT
+    const token = jwt.sign(
+      { 
+        id: nuevoUsuario.id,
+        username: nuevoUsuario.username,
+        email: nuevoUsuario.email,
+        role: nuevoUsuario.role
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    // Respuesta segura - nunca enviar la contraseña
+    const usuarioRespuesta = {
+      id: nuevoUsuario.id,
+      username: nuevoUsuario.username,
+      email: nuevoUsuario.email,
+      role: nuevoUsuario.role,
+      createdAt: nuevoUsuario.createdAt
+    };
+
+    res.status(201).json({
+      message: 'Usuario registrado exitosamente',
+      token,
+      user: usuarioRespuesta
+    });
+
   } catch (error) {
-    console.error('Error al registrar usuario:', error);
-    res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
+    console.error('Error en registro:', error);
+    res.status(500).json({ 
+      message: 'Error interno del servidor al registrar usuario',
+      error: error.message 
+    });
   }
 };
 
@@ -40,29 +87,95 @@ export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Correo y contraseña son requeridos.' });
+    return res.status(400).json({ 
+      message: 'Email y contraseña son requeridos' 
+    });
   }
 
   try {
-    const user = await User.findOne({
-      where: {
-        email: email,
-      },
+    // Buscar usuario incluyendo la contraseña hasheada
+    const usuario = await User.scope('withPassword').findOne({
+      where: { email }
     });
 
-    if (!user) {
-      return res.status(401).json({ message: 'Credenciales inválidas.' });
+    if (!usuario) {
+      return res.status(401).json({ 
+        message: 'Credenciales incorrectas' 
+      });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Credenciales inválidas.' });
+    // Verificar contraseña
+    const contraseñaValida = await bcrypt.compare(password, usuario.password);
+    
+    if (!contraseñaValida) {
+      return res.status(401).json({ 
+        message: 'Credenciales incorrectas' 
+      });
     }
 
-    res.status(200).json({ message: 'Inicio de sesión exitoso.', user: { id: user.id, username: user.username, email: user.email } });
+    // Generar nuevo token
+    const token = jwt.sign(
+      {
+        id: usuario.id,
+        username: usuario.username,
+        email: usuario.email,
+        role: usuario.role
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    // Respuesta segura
+    const usuarioRespuesta = {
+      id: usuario.id,
+      username: usuario.username,
+      email: usuario.email,
+      role: usuario.role
+    };
+
+    res.status(200).json({
+      message: 'Inicio de sesión exitoso',
+      token,
+      user: usuarioRespuesta
+    });
+
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
-    res.status(500).json({ message: 'Error interno del servidor al iniciar sesión.' });
+    console.error('Error en inicio de sesión:', error);
+    res.status(500).json({ 
+      message: 'Error interno del servidor al iniciar sesión',
+      error: error.message 
+    });
+  }
+};
+
+// Controlador para rutas de administrador
+export const adminMiddleware = async (req: Request, res: Response, next: Function) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ 
+        message: 'Acceso no autorizado: Token no proporcionado' 
+      });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    if (decoded.role !== UserRole.ADMIN) {
+      return res.status(403).json({ 
+        message: 'Acceso prohibido: Se requieren privilegios de administrador' 
+      });
+    }
+
+    // Adjuntar información del usuario a la solicitud
+    req.user = decoded;
+    next();
+
+  } catch (error) {
+    console.error('Error en middleware de admin:', error);
+    res.status(401).json({ 
+      message: 'Token inválido o expirado',
+      error: error.message 
+    });
   }
 };
