@@ -1,46 +1,62 @@
 // backend/src/app.ts
-import 'dotenv/config'; // Importa dotenv/config para cargar variables de entorno
+
+import 'reflect-metadata';
+
+import 'dotenv/config';
+
 import express from 'express';
+
 import cors from 'cors';
-import sequelize from './config/database'; // Importa la instancia de Sequelize
-import authRoutes from './routes/auth'; // Importa las rutas de autenticación
+
+import { sequelize } from './config/database';
+
+import authRoutes from './routes/authRoutes';
+
+
+console.log('Backend: Iniciando app.ts...');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
 
-// Middleware
-app.use(express.json());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: process.env.CLIENT_URL || 'http://localhost:3000', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
 }));
+console.log('Backend: Middlewares CORS configurados.');
 
-// Probar la conexión a la base de datos
-sequelize.authenticate()
-  .then(() => {
-    console.log('Conectado a MySQL correctamente.');
-    // Si usas sequelize.sync(), import models here
-    // import('./models/User'); // Importa tu modelo de usuario aquí para que sequelize lo conozca
-    // return sequelize.sync({ alter: true }); // `alter: true` intenta cambiar el esquema sin perder datos (en desarrollo)
-  })
-  .then(() => {
-    console.log('Modelos sincronizados con la base de datos (si force/alter es true).');
-  })
-  .catch((err: Error) => {
-    console.error('Error al conectar o sincronizar con la base de datos:', err);
-    process.exit(1); // Sale de la aplicación si no se puede conectar a la DB
-  });
 
-// Rutas
-app.use('/api/auth', authRoutes); // Prefijo para todas las rutas de autenticación
+app.use(express.json());
+console.log('Backend: Middleware JSON configurado.');
 
-// Ruta de prueba
+
 app.get('/', (req, res) => {
   res.send('Servidor backend funcionando!');
+  console.log('Backend: Petición a la ruta raíz recibida.');
 });
+console.log('Backend: Ruta de prueba "/" configurada.');
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
-});
+app.use('/api/auth', authRoutes);
+console.log('Backend: Rutas de autenticación montadas en /api/auth.');
+
+
+
+sequelize.authenticate() 
+  .then(() => {
+    console.log('Backend: Conectado a MySQL correctamente.');
+
+    return sequelize.sync({ alter: true });
+  })
+  .then(() => {
+    console.log('Backend: Modelos sincronizados con la base de datos.');
+
+    const PORT = process.env.PORT || 4000; 
+    app.listen(PORT, () => {
+      console.log(`Backend: Servidor Express corriendo en http://localhost:${PORT}`);
+    });
+  })
+  .catch((error: Error) => { 
+    console.error('Backend: ¡ERROR CRÍTICO! Fallo al conectar o sincronizar con la base de datos:', error);
+    process.exit(1); 
+  });
+ 
+console.log('Backend: Fin del script app.ts. Esperando conexión a DB y arranque del servidor...');

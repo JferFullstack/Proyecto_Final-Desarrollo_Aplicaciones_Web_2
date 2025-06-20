@@ -1,89 +1,118 @@
 // backend/src/models/User.ts
-import { DataTypes, Model, Optional } from 'sequelize';
-import sequelize from '../config/database';
+import { Table, Column, Model, DataType, Unique, Default, AllowNull, Scopes } from 'sequelize-typescript';
+import { Optional } from 'sequelize';
 import bcrypt from 'bcryptjs';
 
-// Define un tipo para los atributos del modelo User
+// Definición de roles de usuario
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin'
+}
+
 interface UserAttributes {
   id: number;
   username: string;
   email: string;
-  password?: string; // Hacemos password opcional para casos donde no se necesita al obtener un usuario
+  password: string;
+  role: UserRole;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-// Define un tipo para los atributos que son opcionales al crear un User
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'role'> {}
 
-// Define el modelo User extendiendo Model
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-  public id!: number;
-  public username!: string;
-  public email!: string;
-  public password!: string; // Aunque es opcional al crear, siempre estará en la DB
-
-  // Timestamps (createdAt, updatedAt) son gestionados por Sequelize
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-
-  // Método para comparar contraseñas
-  public isValidPassword(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password);
+@Scopes(() => ({
+  withoutPassword: {
+    attributes: { exclude: ['password'] }
   }
-}
-
-// Inicializa el modelo
-User.init({
-  id: {
-    type: DataTypes.INTEGER.UNSIGNED,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true, // Validación de formato de email
-    },
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-}, {
-  sequelize, // Pasa la instancia de sequelize
-  tableName: 'users', // Nombre de la tabla en la base de datos
-  timestamps: true, // Habilita createdAt y updatedAt
+}))
+@Table({
+  timestamps: true,
+  tableName: 'users',
+  modelName: 'User',
   hooks: {
-    // Hook para hashear la contraseña antes de guardar el usuario
     beforeCreate: async (user: User) => {
       if (user.password) {
-        const salt = await bcrypt.genSalt(10); // Genera un "salt" para mayor seguridad
-        user.password = await bcrypt.hash(user.password, salt); // Hashed password
+        const salt = await bcrypt.genSalt(12);
+        user.password = await bcrypt.hash(user.password, salt);
       }
     },
     beforeUpdate: async (user: User) => {
-      // Si la contraseña ha cambiado, la volvemos a hashear
       if (user.changed('password') && user.password) {
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(12);
         user.password = await bcrypt.hash(user.password, salt);
       }
     }
   }
-});
+})
+export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  })
+  id!: number;
 
-// Sincronizar el modelo con la base de datos (solo en desarrollo)
-// En un entorno de producción, es mejor usar migraciones (ver más abajo)
-// User.sync({ alter: true }) // `alter: true` intenta hacer cambios sin perder datos existentes
-//   .then(() => console.log('Tabla de usuarios creada o actualizada.'))
-//   .catch((err: Error) => console.error('Error al sincronizar tabla de usuarios:', err));
+  @AllowNull(false)
+  @Unique
+  @Column({
+    type: DataType.STRING(50),
+    validate: {
+      len: [3, 50],
+      is: /^[a-zA-Z0-9_]+$/
+    }
+  })
+  username!: string;
 
+  @AllowNull(false)
+  @Unique
+  @Column({
+    type: DataType.STRING(100),
+    validate: {
+      isEmail: true,
+      len: [5, 100]
+    }
+  })
+  email!: string;
 
-export default User;
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING(255),
+    validate: {
+      len: [8, 255]
+    }
+  })
+  password!: string;
+
+  @AllowNull(false)
+  @Default(UserRole.USER)
+  @Column({
+    type: DataType.ENUM(...Object.values(UserRole)),
+    validate: {
+      isIn: [Object.values(UserRole)]
+    }
+  })
+  role!: UserRole;
+
+  // Método para verificar contraseña
+  async isValidPassword(password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password);
+  }
+
+  // Método para verificar rol
+  hasRole(role: UserRole): boolean {
+    return this.role === role;
+  }
+
+  @Column({
+    type: DataType.DATE,
+    field: 'createdAt'
+  })
+  createdAt!: Date;
+
+  @Column({
+    type: DataType.DATE,
+    field: 'updatedAt'
+  })
+  updatedAt!: Date;
+}
