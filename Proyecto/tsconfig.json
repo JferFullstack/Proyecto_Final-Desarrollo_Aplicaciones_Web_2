@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".", // Importante: indica que las rutas absolutas son relativas al directorio actual (frontend)
+    "paths": {
+      "@/*": ["./*"] // Esto mapea `@/` a la raíz del proyecto (frontend/)
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"]
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/**/*.d.ts" // Si tienes archivos .d.ts en src/
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
